@@ -14,12 +14,12 @@ const query = (sql, params) => {
 exports.getMe = async (req, res) => {
   try {
     const userId = req.user.id;
-
     const [userRows, orders, addresses, cards] = await Promise.all([
       query("SELECT id, name, email, cpf, is_admin FROM users WHERE id = ?", [userId]),
       query("SELECT * FROM orders WHERE user_id = ?", [userId]),
       query("SELECT * FROM addresses WHERE user_id = ?", [userId]),
-      query("SELECT id, card_number, expiration_date, is_favorite FROM credit_cards WHERE user_id = ?", [userId])
+      // Fixed: Added IFNULL to prevent frontend 'undefined' crashes on is_favorite
+      query("SELECT id, card_number, expiration_date, IFNULL(is_favorite, 0) AS is_favorite FROM credit_cards WHERE user_id = ?", [userId])
     ]);
 
     if (!userRows.length) return res.status(404).json({ error: "User not found" });
@@ -37,33 +37,21 @@ exports.getMe = async (req, res) => {
 
 exports.registerUser = async (req, res) => {
   const { name, email, password, cpf, is_admin } = req.body;
-  
   if (!name || !email || !password || !cpf) {
     return res.status(400).json({ error: "All fields are required" });
   }
-
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await query(
       "INSERT INTO users (name, email, password, cpf, is_admin) VALUES (?, ?, ?, ?, ?)",
       [name, email, hashedPassword, cpf, is_admin || false]
     );
-
     const token = jwt.sign(
-      { 
-        id: result.insertId, 
-        email: email, 
-        name: name, 
-        is_admin: is_admin || false 
-      },
+      { id: result.insertId, email, name, is_admin: is_admin || false },
       process.env.JWT_SECRET || "secret_key",
       { expiresIn: "7d" }
     );
-
-    res.status(201).json({ 
-      message: "User created successfully", 
-      token: token 
-    });
+    res.status(201).json({ message: "User created successfully", token });
   } catch (err) {
     if (err.code === "ER_DUP_ENTRY") return res.status(409).json({ error: "Email or CPF already exists" });
     res.status(500).json({ error: err.message });
@@ -71,7 +59,7 @@ exports.registerUser = async (req, res) => {
 };
 
 exports.loginUser = async (req, res) => {
-  const { identifier, password } = req.body;
+  const { identifier, password } = req.body; // Note: Expects 'identifier'
   try {
     const results = await query("SELECT * FROM users WHERE email = ? OR name = ?", [identifier, identifier]);
     if (results.length === 0) return res.status(401).json({ error: "User not found" });
@@ -206,4 +194,17 @@ exports.setFavoriteCard = async (req, res) => {
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
+};
+
+exports.addCard = async (req, res) => {
+  const { card_number, security_code, expiration_date } = req.body;
+  try {
+    await query(
+      "INSERT INTO credit_cards (user_id, card_number, security_code, expiration_date, is_favorite) VALUES (?, ?, ?, ?, ?)",
+      [req.user.id, card_number, security_code, expiration_date, 0] // Always insert a default 0
+    );
+    res.json({ message: "Card added successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
