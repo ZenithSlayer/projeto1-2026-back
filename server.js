@@ -8,7 +8,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Mount routes
 app.use("/products", productsRoutes);
 app.use("/users", usersRoutes);
 

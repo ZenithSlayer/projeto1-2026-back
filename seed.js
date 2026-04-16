@@ -1,4 +1,3 @@
-// seed.js
 const mysql = require('mysql2/promise');
 const { faker } = require('@faker-js/faker');
 require('dotenv').config();
@@ -14,7 +13,6 @@ async function main() {
 
   console.log('Connected to DB, seeding...');
 
-  // 1. Users
   const users = [];
   for (let i = 0; i < 10; i++) {
     users.push([
@@ -31,7 +29,6 @@ async function main() {
   );
   console.log(`Inserted ${userResult.affectedRows} users`);
 
-  // 2. Categories
   const categories = [];
   for (let i = 0; i < 5; i++) {
     categories.push([faker.commerce.department(), faker.lorem.sentence()]);
@@ -41,11 +38,10 @@ async function main() {
     [categories]
   );
 
-  // 3. Products
   const products = [];
   for (let i = 0; i < 20; i++) {
     products.push([
-      1, // admin user
+      1,
       faker.commerce.productName(),
       faker.commerce.productDescription(),
       faker.commerce.price(10, 500, 2),
@@ -57,7 +53,6 @@ async function main() {
     [products]
   );
 
-  // 4. Product-Categories
   const productCategories = [];
   for (let i = 1; i <= 20; i++) {
     const catId = faker.number.int({ min: 1, max: 5 });
@@ -68,7 +63,6 @@ async function main() {
     [productCategories]
   );
 
-  // 5. Addresses
   const addresses = [];
   for (let i = 1; i <= 10; i++) {
     addresses.push([
@@ -86,7 +80,6 @@ async function main() {
     [addresses]
   );
 
-  // 6. Credit Cards
   const creditCards = [];
   for (let i = 1; i <= 10; i++) {
     creditCards.push([
@@ -101,7 +94,6 @@ async function main() {
     [creditCards]
   );
 
-  // 7. Orders
   const orders = [];
   for (let i = 1; i <= 10; i++) {
     orders.push([i, faker.commerce.price(50, 2000, 2), 'pending']);
@@ -111,7 +103,6 @@ async function main() {
     [orders]
   );
 
-  // 8. Order Items
   const orderItems = [];
   for (let i = 1; i <= 10; i++) {
     const productId = faker.number.int({ min: 1, max: 20 });
