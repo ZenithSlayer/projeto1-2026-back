@@ -13,7 +13,6 @@ async function main() {
 
   await connection.query('SET FOREIGN_KEY_CHECKS = 0');
 
-  // Tables listed in order of dependency for cleaning
   const tables = [
     'cart',
     'order_items',
@@ -30,15 +29,14 @@ async function main() {
     await connection.query(`TRUNCATE TABLE ${table}`);
   }
 
-  // 1. Users
   const users = [];
   for (let i = 0; i < 50; i++) {
     users.push([
       faker.person.fullName(),
       faker.internet.email(),
       faker.internet.password(),
-      faker.string.numeric(11), // cpf
-      i < 5 ? 1 : 0            // is_admin
+      faker.string.numeric(11),
+      i < 5 ? 1 : 0
     ]);
   }
   await connection.query(
@@ -46,7 +44,6 @@ async function main() {
     [users]
   );
 
-  // 2. Categories
   const categories = [];
   for (let i = 0; i < 50; i++) {
     categories.push([
@@ -59,11 +56,10 @@ async function main() {
     [categories]
   );
 
-  // 3. Products
   const products = [];
   for (let i = 0; i < 50; i++) {
     products.push([
-      faker.number.int({ min: 1, max: 5 }), // admin_id
+      faker.number.int({ min: 1, max: 5 }),
       faker.commerce.productName(),
       faker.commerce.productDescription(),
       faker.commerce.price({ min: 10, max: 1000 }),
@@ -75,12 +71,11 @@ async function main() {
     [products]
   );
 
-  // 4. Product Categories
   const productCategories = [];
   for (let i = 1; i <= 50; i++) {
     productCategories.push([
-      i, // product_id
-      faker.number.int({ min: 1, max: 50 }) // category_id
+      i,
+      faker.number.int({ min: 1, max: 50 })
     ]);
   }
   await connection.query(
@@ -88,17 +83,15 @@ async function main() {
     [productCategories]
   );
 
-  // 5. Addresses
   const addresses = [];
   for (let i = 1; i <= 50; i++) {
     addresses.push([
-      i, // user_id
-      'Brasil',
+      i,
       faker.location.state(),
       faker.location.city(),
       faker.location.street(),
       faker.number.int({ min: 1, max: 9999 }).toString(),
-      faker.helpers.arrayElement([0, 1]), // is_favorite
+      faker.helpers.arrayElement([0, 1]),
       faker.location.zipCode('########')
     ]);
   }
@@ -107,11 +100,10 @@ async function main() {
     [addresses]
   );
 
-  // 6. Credit Cards
   const creditCards = [];
   for (let i = 1; i <= 50; i++) {
     creditCards.push([
-      i, // user_id
+      i,
       faker.finance.creditCardNumber('####-####-####-####'),
       faker.finance.creditCardCVV(),
       faker.date.future().toISOString().split('T')[0],
@@ -123,7 +115,6 @@ async function main() {
     [creditCards]
   );
 
-  // 7. Orders
   const orders = [];
   for (let i = 1; i <= 50; i++) {
     orders.push([
@@ -137,13 +128,12 @@ async function main() {
     [orders]
   );
 
-  // 8. Order Items
   const orderItems = [];
   for (let i = 1; i <= 50; i++) {
     orderItems.push([
-      i, // order_id
-      faker.number.int({ min: 1, max: 50 }), // product_id
-      faker.number.int({ min: 1, max: 5 }),  // quantity
+      i,
+      faker.number.int({ min: 1, max: 50 }),
+      faker.number.int({ min: 1, max: 5 }),
       faker.commerce.price({ min: 10, max: 1000 })
     ]);
   }
@@ -152,13 +142,12 @@ async function main() {
     [orderItems]
   );
 
-  // 9. Cart
   const cartItems = [];
   for (let i = 0; i < 50; i++) {
     cartItems.push([
-      faker.number.int({ min: 1, max: 50 }), // user_id
-      faker.number.int({ min: 1, max: 50 }), // product_id
-      faker.number.int({ min: 1, max: 5 })   // quantity
+      faker.number.int({ min: 1, max: 50 }),
+      faker.number.int({ min: 1, max: 50 }),
+      faker.number.int({ min: 1, max: 5 })
     ]);
   }
   await connection.query(
