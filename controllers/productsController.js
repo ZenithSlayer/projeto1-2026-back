@@ -1,7 +1,7 @@
 const db = require("../db");
 
 exports.getAllProducts = (req, res) => {
-  db.query("SELECT * FROM products WHERE is_deleted = 0", (err, results) => {
+  db.query("SELECT p.*, c.name AS category_name FROM products p LEFT JOIN product_categories pc ON p.id = pc.product_id LEFT JOIN categories c ON pc.category_id = c.id WHERE is_deleted = 0", (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json(results);
   });
@@ -25,7 +25,7 @@ exports.getAllTags = (req, res) => {
 
 exports.getProductById = (req, res) => {
   const { id } = req.params;
-  db.query("SELECT * FROM products WHERE id = ?", [id], (err, results) => {
+  db.query("SELECT p.*, c.name FROM products p LEFT JOIN product_categories pc ON p.id = pc.product_id LEFT JOIN categories c ON pc.category_id = c.id WHERE p.id = ?;", [id], (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
     if (results.length === 0) return res.status(404).json({ message: "Product not found" });
     res.json(results[0]);

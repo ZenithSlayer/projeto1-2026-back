@@ -14,6 +14,22 @@ exports.createOrder = async (req, res) => {
   const userId = req.user.id;
 
   try {
+    const address = await query(
+      "SELECT id FROM addresses WHERE user_id = ? LIMIT 1",
+      [userId]
+    );
+    if (address.length === 0) {
+      return res.status(400).json({ error: "No shipping address found. Please add an address before checkout." });
+    }
+
+    const card = await query(
+      "SELECT id FROM credit_cards WHERE user_id = ? LIMIT 1",
+      [userId]
+    );
+    if (card.length === 0) {
+      return res.status(400).json({ error: "No payment method found. Please add a credit card before checkout." });
+    }
+
     await query("START TRANSACTION");
 
     const orderResult = await query(

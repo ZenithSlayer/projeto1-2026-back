@@ -87,6 +87,7 @@ async function main() {
   for (let i = 1; i <= 50; i++) {
     addresses.push([
       i,
+      faker.location.country(),
       faker.location.state(),
       faker.location.city(),
       faker.location.street(),

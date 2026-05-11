@@ -16,7 +16,6 @@ describe("Comprehensive API Integration Suite", () => {
     if (db && db.end) await db.end();
   });
 
-  // --- 1. REGISTRATION & AUTH VALIDATION (5 Tests) ---
   describe("Auth & Registration Logic", () => {
     it("1. Should fail registration if fields are missing", async () => {
       const res = await request(app).post("/users/register").send({ email: "fail@test.com" });
@@ -54,7 +53,6 @@ describe("Comprehensive API Integration Suite", () => {
     });
   });
 
-  // --- 2. PROFILE MANAGEMENT (5 Tests) ---
   describe("User Profile Actions", () => {
     it("6. Should fetch user's own profile (getMe)", async () => {
       const res = await request(app).get("/users/me").set("Authorization", `Bearer ${authToken}`);
@@ -86,7 +84,6 @@ describe("Comprehensive API Integration Suite", () => {
     });
   });
 
-  // --- 3. ADDRESSES (6 Tests) ---
   describe("Address Resource Management", () => {
     it("11. Should add a new address", async () => {
       const res = await request(app).post("/users/address").set("Authorization", `Bearer ${authToken}`)
@@ -122,7 +119,6 @@ describe("Comprehensive API Integration Suite", () => {
     });
   });
 
-  // --- 4. CREDIT CARDS (6 Tests) ---
   describe("Credit Card Management", () => {
     it("17. Should add a credit card", async () => {
       const res = await request(app).post("/users/card").set("Authorization", `Bearer ${authToken}`)
@@ -159,7 +155,6 @@ describe("Comprehensive API Integration Suite", () => {
     });
   });
 
-  // --- 5. PRODUCTS (4 Tests) ---
   describe("Product Catalog Access", () => {
     it("23. Should return all products", async () => {
       const res = await request(app).get("/products");
@@ -186,7 +181,6 @@ describe("Comprehensive API Integration Suite", () => {
     });
   });
 
-  // --- 6. EDGE CASES & CLEANUP (4 Tests) ---
   describe("Security & Teardown", () => {
     it("27. Should reject invalid token format", async () => {
       const res = await request(app).get("/users/me").set("Authorization", "Bearer notatoken");
