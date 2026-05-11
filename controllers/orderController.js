@@ -1,6 +1,5 @@
 const db = require("../db");
 
-// Helper for promises
 const query = (sql, params) => {
   return new Promise((resolve, reject) => {
     db.query(sql, params, (err, results) => {
@@ -10,13 +9,11 @@ const query = (sql, params) => {
   });
 };
 
-// 1. Create Order (Checkout)
 exports.createOrder = async (req, res) => {
   const { total, items } = req.body;
   const userId = req.user.id;
 
   try {
-    // Start Transaction
     await query("START TRANSACTION");
 
     const orderResult = await query(
@@ -26,10 +23,6 @@ exports.createOrder = async (req, res) => {
     
     const orderId = orderResult.insertId;
 
-    // Optional: Insert into order_items if you are tracking them
-    // items.forEach(...) 
-
-    // Clear the cart
     await query("DELETE FROM cart WHERE user_id = ?", [userId]);
 
     await query("COMMIT");
@@ -40,7 +33,6 @@ exports.createOrder = async (req, res) => {
   }
 };
 
-// 2. Get All Orders (This was likely the missing function causing the crash)
 exports.getOrders = async (req, res) => {
   try {
     const results = await query(
@@ -53,7 +45,6 @@ exports.getOrders = async (req, res) => {
   }
 };
 
-// 3. Get Order Details
 exports.getOrderDetails = async (req, res) => {
   try {
     const results = await query(

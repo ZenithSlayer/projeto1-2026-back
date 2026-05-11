@@ -11,7 +11,6 @@ const query = (sql, params) => {
 
 exports.getCart = async (req, res) => {
   try {
-    // We JOIN with products to get price, name, and image for the frontend
     const sql = `
       SELECT c.id, c.product_id, c.quantity, p.name, p.price, p.image_url 
       FROM cart c
@@ -27,7 +26,6 @@ exports.getCart = async (req, res) => {
 exports.addToCart = async (req, res) => {
   const { product_id, quantity } = req.body;
   try {
-    // Check if item already exists to increment quantity instead of duplicate row
     const existing = await query("SELECT id, quantity FROM cart WHERE user_id = ? AND product_id = ?", [req.user.id, product_id]);
     
     if (existing.length > 0) {

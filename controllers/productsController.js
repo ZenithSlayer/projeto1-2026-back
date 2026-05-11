@@ -7,6 +7,14 @@ exports.getAllProducts = (req, res) => {
   });
 };
 
+exports.getAllCategory = (req, res) => {
+  const { id } = req.params;
+  db.query("SELECT products.* FROM products INNER JOIN product_categories ON id = product_id WHERE category_id = ?", [id], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+};
+
 exports.getProductById = (req, res) => {
   const { id } = req.params;
   db.query("SELECT * FROM products WHERE id = ?", [id], (err, results) => {
