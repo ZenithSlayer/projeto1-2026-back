@@ -18,7 +18,6 @@ exports.getMe = async (req, res) => {
       query("SELECT id, name, email, cpf, is_admin FROM users WHERE id = ?", [userId]),
       query("SELECT * FROM orders WHERE user_id = ?", [userId]),
       query("SELECT * FROM addresses WHERE user_id = ?", [userId]),
-      // Fixed: Added IFNULL to prevent frontend 'undefined' crashes on is_favorite
       query("SELECT id, card_number, expiration_date, IFNULL(is_favorite, 0) AS is_favorite FROM credit_cards WHERE user_id = ?", [userId])
     ]);
 
@@ -59,7 +58,7 @@ exports.registerUser = async (req, res) => {
 };
 
 exports.loginUser = async (req, res) => {
-  const { identifier, password } = req.body; // Note: Expects 'identifier'
+  const { identifier, password } = req.body;
   try {
     const results = await query("SELECT * FROM users WHERE email = ? OR name = ?", [identifier, identifier]);
     if (results.length === 0) return res.status(401).json({ error: "User not found" });
@@ -73,7 +72,13 @@ exports.loginUser = async (req, res) => {
       process.env.JWT_SECRET || "secret_key",
       { expiresIn: "7d" }
     );
-    res.json({ token });
+    res.json({ token, 
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        is_admin: user.is_admin
+      } });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

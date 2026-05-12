@@ -9,7 +9,7 @@ exports.getAllProducts = (req, res) => {
 
 exports.getAllCategory = (req, res) => {
   const { id } = req.params;
-  db.query("SELECT products.* FROM products INNER JOIN product_categories ON id = product_id WHERE category_id = ? and is_deleted = 0", [id], (err, results) => {
+  db.query("SELECT p.* FROM products p INNER JOIN product_categories c ON p.id = c.product_id WHERE c.category_id = ? AND p.is_deleted = 0", [id], (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json(results);
   });
@@ -17,7 +17,7 @@ exports.getAllCategory = (req, res) => {
 
 exports.getAllTags = (req, res) => {
   const { id } = req.params;
-  db.query("SELECT c.name, c.id FROM categories c INNER JOIN product_categories pc ON c.id = pc.category_id GROUP BY c.name HAVING COUNT(pc.product_id) > 0;", [id], (err, results) => {
+  db.query("SELECT c.id, c.name FROM categories c INNER JOIN product_categories pc ON c.id = pc.category_id INNER JOIN products p ON pc.product_id = p.id GROUP BY c.id, c.name HAVING SUM(p.is_deleted = 0) > 0 ORDER BY c;", [id], (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json(results);
   });
@@ -29,6 +29,21 @@ exports.getProductById = (req, res) => {
     if (err) return res.status(500).json({ error: err.message });
     if (results.length === 0) return res.status(404).json({ message: "Product not found" });
     res.json(results[0]);
+  });
+};
+
+exports.createProduct = (req, res) => {
+  const { name, description, price, image_url, admin_id } = req.body;
+  db.query("INSERT INTO products (name, description, price, image_url, admin_id) VALUES (?, ?, ?, ?, ?)", [name, description, price, image_url, admin_id || 1], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    
+    res.status(201).json({ 
+      id: result.insertId, 
+      name, 
+      description, 
+      price, 
+      image_url 
+    });
   });
 };
 
